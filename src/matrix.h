@@ -41,9 +41,9 @@ namespace litenet {
             Matrix pow(double exponent) const;
             Matrix abs() const;
             Matrix sign() const;
-            Matrix log(double base) const;
+            Matrix log(double base = 2) const;
             double sum() const;
-            Matrix sum(int axis) const;
+            double sum(int axis) const;
             std::vector<double> flatten() const;
             static Matrix reshape(const std::vector<double> &v, int rows, int cols);
             void fill(double value);
