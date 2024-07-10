@@ -15,6 +15,7 @@ namespace litenet {
             double operator()(int i, int j) const;
             int getRows() const;
             int getCols() const;
+            std::vector<int> getShape() const;
             Matrix operator+(const Matrix &m) const;
             Matrix operator+(double scalar) const;
             friend Matrix operator+(double scalar, const Matrix &m);

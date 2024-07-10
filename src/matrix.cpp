@@ -48,6 +48,10 @@ namespace litenet {
         return cols;
     }
 
+    std::vector<int> Matrix::getShape() const {
+        return {rows, cols};
+    }
+
     Matrix Matrix::operator+(const Matrix &m) const { // Element-wise addition
         if (rows != m.rows || cols != m.cols) {
             throw std::invalid_argument("Matrix dimensions are not compatible for addition");
