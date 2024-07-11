@@ -67,7 +67,7 @@ namespace litenet::activations {
         return m;
     }
 
-    Matrix sigmoidDerivative(const Matrix &m) {
+    Matrix sigmoidPrime(const Matrix &m) {
         Matrix result(m.getRows(), m.getCols());
         for (int i = 0; i < m.getRows(); i++) {
             for (int j = 0; j < m.getCols(); j++) {
@@ -78,7 +78,7 @@ namespace litenet::activations {
         return result;
     }
 
-    Matrix reluDerivative(const Matrix &m) {
+    Matrix reluPrime(const Matrix &m) {
         Matrix result(m.getRows(), m.getCols());
         for (int i = 0; i < m.getRows(); i++) {
             for (int j = 0; j < m.getCols(); j++) {
@@ -88,7 +88,7 @@ namespace litenet::activations {
         return result;
     }
 
-    Matrix leakyReluDerivative(const Matrix &m, double negativeSlope) {
+    Matrix leakyReluPrime(const Matrix &m, double negativeSlope) {
         Matrix result(m.getRows(), m.getCols());
         for (int i = 0; i < m.getRows(); i++) {
             for (int j = 0; j < m.getCols(); j++) {
@@ -98,7 +98,7 @@ namespace litenet::activations {
         return result;
     }
 
-    Matrix tanhDerivative(const Matrix &m) {
+    Matrix tanhPrime(const Matrix &m) {
         Matrix result(m.getRows(), m.getCols());
         for (int i = 0; i < m.getRows(); i++) {
             for (int j = 0; j < m.getCols(); j++) {
@@ -109,7 +109,7 @@ namespace litenet::activations {
         return result;
     }
 
-    Matrix softmaxDerivative(const Matrix &m) {
+    Matrix softmaxPrime(const Matrix &m) {
         Matrix result(m.getRows(), m.getCols());
         for (int i = 0; i < m.getRows(); i++) {
             for (int j = 0; j < m.getCols(); j++) {
@@ -120,7 +120,7 @@ namespace litenet::activations {
         return result;
     }
 
-    Matrix linearDerivative(const Matrix &m) {
+    Matrix linearPrime(const Matrix &m) {
         Matrix result(m.getRows(), m.getCols());
         result.fill(1);
         return result;

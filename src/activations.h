@@ -16,7 +16,7 @@ namespace litenet::activations {
     Matrix reluPrime(const Matrix &m);
     Matrix leakyReluPrime(const Matrix &m, double negativeSlope = 0.2);
     Matrix tanhPrime(const Matrix &m);
-    Matrix softmaxPrme(const Matrix &m);
+    Matrix softmaxPrime(const Matrix &m);
     Matrix linearPrime(const Matrix &m);
 }
 
