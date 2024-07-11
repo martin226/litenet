@@ -1,7 +1,6 @@
 #include "loss.h"
 #include <cmath>
 #include <stdexcept>
-#include <iostream>
 
 namespace litenet::loss {
     double meanSquaredError(const Matrix &predictions, const Matrix &targets) {

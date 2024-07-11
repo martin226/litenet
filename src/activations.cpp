@@ -1,6 +1,5 @@
 #include "activations.h"
 #include <cmath>
-#include <iostream>
 
 namespace litenet::activations {
     double sigmoid(double x) {
