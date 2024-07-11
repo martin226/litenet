@@ -149,8 +149,7 @@ namespace litenet::activations {
     }
 
     Matrix linearPrime(const Matrix &m) {
-        Matrix result(m.getRows(), m.getCols());
-        result.fill(1);
+        Matrix result(m.getRows(), m.getCols(), 1);
         return result;
     }
 }
