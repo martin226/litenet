@@ -8,16 +8,7 @@ namespace litenet {
 
     Matrix::Matrix(int rows, int cols) : rows(rows), cols(cols), data(rows * cols) {}
 
-    Matrix::Matrix(int rows, int cols, bool random) : rows(rows), cols(cols), data(rows * cols) {
-        if (random) {
-            std::random_device rd;
-            std::mt19937 gen(rd());
-            std::normal_distribution<double> dist(0, 1);
-            for (size_t i = 0; i < rows * cols; i++) {
-                data[i] = dist(gen);
-            }
-        }
-    }
+    Matrix::Matrix(int rows, int cols, double value) : rows(rows), cols(cols), data(rows * cols, value) {}
 
     Matrix::Matrix(const Matrix &m) : rows(m.rows), cols(m.cols), data(m.data) {}
 

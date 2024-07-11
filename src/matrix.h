@@ -8,7 +8,7 @@ namespace litenet {
         public:
             Matrix();
             Matrix(int rows, int cols);
-            Matrix(int rows, int cols, bool random);
+            Matrix(int rows, int cols, double value);
             Matrix(const Matrix &m);
             ~Matrix();
             Matrix &operator=(const Matrix &m);
