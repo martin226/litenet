@@ -6,6 +6,7 @@
 namespace litenet {
     class Matrix {
         public:
+            Matrix();
             Matrix(int rows, int cols);
             Matrix(int rows, int cols, bool random);
             Matrix(const Matrix &m);
@@ -26,6 +27,7 @@ namespace litenet {
             Matrix operator*(double factor) const;
             friend Matrix operator*(double factor, const Matrix &m);
             Matrix operator/(double factor) const;
+            Matrix operator/(const Matrix &m) const;
             Matrix operator-() const;
             Matrix &operator+=(const Matrix &m);
             Matrix &operator+=(double scalar);
@@ -34,6 +36,7 @@ namespace litenet {
             Matrix &operator*=(const Matrix &m);
             Matrix &operator*=(double factor);
             Matrix &operator/=(double factor);
+            Matrix &operator/=(const Matrix &m);
             bool operator==(const Matrix &m) const;
             bool operator!=(const Matrix &m) const;
             Matrix hadamard(const Matrix &m) const;
@@ -50,6 +53,8 @@ namespace litenet {
             void fill(double value);
             Matrix subsetCols(int start, int end) const;
             Matrix subsetRows(int start, int end) const;
+            void swapRows(int i, int j);
+            void swapCols(int i, int j);
             void print() const;
         private:
             int rows;

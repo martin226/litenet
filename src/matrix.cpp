@@ -4,7 +4,9 @@
 #include <random>
 
 namespace litenet {
-    Matrix::Matrix(int rows, int cols) : rows(rows), cols(cols), data(rows * cols, 0) {}
+    Matrix::Matrix() : rows(0), cols(0) {}
+
+    Matrix::Matrix(int rows, int cols) : rows(rows), cols(cols), data(rows * cols) {}
 
     Matrix::Matrix(int rows, int cols, bool random) : rows(rows), cols(cols), data(rows * cols) {
         if (random) {
@@ -136,6 +138,20 @@ namespace litenet {
         return result;
     }
 
+    Matrix Matrix::operator/(const Matrix &m) const { // Element-wise division
+        if (rows != m.rows || cols != m.cols) {
+            throw std::invalid_argument("Matrix dimensions are not compatible for division");
+        }
+        Matrix result(rows, cols);
+        for (size_t i = 0; i < rows * cols; i++) {
+            if (m.data[i] == 0) {
+                throw std::invalid_argument("Division by zero");
+            }
+            result.data[i] = data[i] / m.data[i];
+        }
+        return result;
+    }
+
     Matrix Matrix::operator-() const { // Unary minus
         Matrix result(rows, cols);
         for (size_t i = 0; i < rows * cols; i++) {
@@ -207,6 +223,19 @@ namespace litenet {
         }
         for (size_t i = 0; i < rows * cols; i++) {
             data[i] /= factor;
+        }
+        return *this;
+    }
+
+    Matrix &Matrix::operator/=(const Matrix &m) { // Element-wise division assignment
+        if (rows != m.rows || cols != m.cols) {
+            throw std::invalid_argument("Matrix dimensions are not compatible for division");
+        }
+        for (size_t i = 0; i < rows * cols; i++) {
+            if (m.data[i] == 0) {
+                throw std::invalid_argument("Division by zero");
+            }
+            data[i] /= m.data[i];
         }
         return *this;
     }
@@ -284,7 +313,7 @@ namespace litenet {
         return result;
     }
 
-    Matrix Matrix::log(double base = 2) const {
+    Matrix Matrix::log(double base) const {
         Matrix result(rows, cols);
         for (size_t i = 0; i < rows * cols; i++) {
             result.data[i] = std::log(data[i]) / std::log(base);
@@ -365,6 +394,24 @@ namespace litenet {
             }
         }
         return result;
+    }
+
+    void Matrix::swapRows(int i, int j) {
+        if (i < 0 || i >= rows || j < 0 || j >= rows) {
+            throw std::invalid_argument("Invalid row indices for swapping");
+        }
+        for (size_t k = 0; k < cols; k++) {
+            std::swap(data[i * cols + k], data[j * cols + k]);
+        }
+    }
+
+    void Matrix::swapCols(int i, int j) {
+        if (i < 0 || i >= cols || j < 0 || j >= cols) {
+            throw std::invalid_argument("Invalid column indices for swapping");
+        }
+        for (size_t k = 0; k < rows; k++) {
+            std::swap(data[k * cols + i], data[k * cols + j]);
+        }
     }
 
     void Matrix::print() const {
