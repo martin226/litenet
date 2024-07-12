@@ -10,7 +10,7 @@
 
 I wanted to learn more about neural networks and how they work under the hood. I also wanted to learn more about C++ and how to write efficient code. I decided to write a neural network framework in C++ with no dependencies to learn more about both of these topics.
 
-## Example Usage
+## Example Usage (handwritten digit recognition)
 
 For the full example, see [src/example_mnist.cpp](src/example_mnist.cpp).
 
