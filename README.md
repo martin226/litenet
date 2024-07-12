@@ -19,7 +19,7 @@ For the full example, see [src/example_mnist.cpp](src/example_mnist.cpp).
 litenet::Model model;
 model.add(std::make_unique<litenet::layers::Dense>(784, 64, "sigmoid", std::make_unique<litenet::initializers::GlorotUniform>()));
 model.add(std::make_unique<litenet::layers::Dense>(64, 10, "sigmoid", std::make_unique<litenet::initializers::GlorotUniform>()));
-model.compile("mean_squared_error", "sgd", 1);
+model.compile("mean_squared_error", std::make_unique<litenet::optimizers::Adam>(0.01));
 
 // Train
 model.fit(inputs, targets, 30, 64, validationInputs, validationTargets);
@@ -36,14 +36,14 @@ std::cout << "Accuracy: " << results[1] << std::endl;
 Results: (on MNIST dataset, 5000 training samples, 100 validation samples)
 
 ```
-Epoch 1 | loss: 0.46668 | val_loss: 0.459096
-Epoch 2 | loss: 0.290538 | val_loss: 0.304305
-Epoch 3 | loss: 0.228624 | val_loss: 0.245367
+Epoch 1 | loss: 0.256219 | val_loss: 0.278005
+Epoch 2 | loss: 0.2069 | val_loss: 0.249769
+Epoch 3 | loss: 0.174791 | val_loss: 0.228139
 ...
-Epoch 30 | loss: 0.0631792 | val_loss: 0.107987
+Epoch 30 | loss: 0.0256604 | val_loss: 0.0824118
 
-Loss: 0.107987
-Accuracy: 0.92
+Loss: 0.0824118
+Accuracy: 0.94
 ```
 
 ## Features
@@ -65,11 +65,11 @@ Accuracy: 0.92
   - [x] Mean Absolute Error
   - [x] Binary Cross Entropy
   - [x] Categorical Cross Entropy
-- [ ] Optimizers
+- [x] Optimizers
   - [x] Stochastic Gradient Descent (mini-batch)
-  - [ ] Adam
-  - [ ] RMSprop
-  - [ ] Adagrad
+  - [x] Adam
+  - [x] RMSprop
+  - [x] Adagrad
 - [ ] Metrics
   - [x] Accuracy
   - [ ] Precision
