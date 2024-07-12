@@ -54,4 +54,18 @@ namespace litenet::optimizers {
         weights -= dWeights / (vWeights.sqrt() + epsilon) * learningRate;
         biases -= dBiases / (vBiases.sqrt() + epsilon) * learningRate;
     }
+
+    RMSProp::RMSProp(double learningRate, double beta, double epsilon) : Optimizer(learningRate), beta(beta), epsilon(epsilon), vWeights(0, 0), vBiases(0, 0) {}
+
+    void RMSProp::update(Matrix &weights, Matrix &biases, const Matrix &dWeights, const Matrix &dBiases) {
+        if (vWeights.getRows() != weights.getRows() || vWeights.getCols() != weights.getCols()) {
+            vWeights = Matrix(weights.getRows(), weights.getCols());
+            vBiases = Matrix(biases.getRows(), biases.getCols());
+        }
+        vWeights = beta * vWeights + (1 - beta) * dWeights.pow(2);
+        vBiases = beta * vBiases + (1 - beta) * dBiases.pow(2);
+
+        weights -= dWeights / (vWeights.sqrt() + epsilon) * learningRate;
+        biases -= dBiases / (vBiases.sqrt() + epsilon) * learningRate;
+    }
 }

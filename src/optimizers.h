@@ -41,6 +41,16 @@ namespace litenet::optimizers {
             Matrix vWeights;
             Matrix vBiases;
     };
+    class RMSProp : public Optimizer {
+        public:
+            RMSProp(double learningRate = 0.01, double beta = 0.9, double epsilon = 1e-8);
+            void update(Matrix &weights, Matrix &biases, const Matrix &dWeights, const Matrix &dBiases) override;
+        private:
+            double beta;
+            double epsilon;
+            Matrix vWeights;
+            Matrix vBiases;
+    };
 }
 
 #endif
