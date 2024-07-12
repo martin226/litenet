@@ -43,6 +43,7 @@ namespace litenet {
             Matrix transpose() const;
             Matrix normalize() const;
             Matrix pow(double exponent) const;
+            Matrix sqrt() const;
             Matrix abs() const;
             Matrix sign() const;
             Matrix log(double base = 2) const;

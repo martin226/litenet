@@ -1,6 +1,8 @@
 #include "model.h"
 #include "layers.h"
 #include "loss.h"
+#include "optimizers.h"
+
 #include <iostream>
 #include <random>
 #include <memory>
@@ -8,16 +10,15 @@
 #include <algorithm>
 
 namespace litenet {
-    Model::Model() : loss("mean_squared_error"), optimizer("sgd"), learningRate(0.001) {}
+    Model::Model() : loss("mean_squared_error") {}
 
     void Model::add(std::unique_ptr<layers::Layer> layer) {
         layers.push_back(std::move(layer));
     }
 
-    void Model::compile(const std::string &loss, const std::string &optimizer, double learningRate) {
+    void Model::compile(const std::string &loss, std::unique_ptr<optimizers::Optimizer> optimizer) {
         this->loss = loss;
-        this->optimizer = optimizer;
-        this->learningRate = learningRate;
+        this->optimizer = std::move(optimizer);
     }
 
     void Model::fit(const Matrix &inputs, const Matrix &targets, int epochs, int batchSize, const Matrix &validationInputs, const Matrix &validationTargets) {
@@ -107,12 +108,11 @@ namespace litenet {
                     dOutput = dInput;
 
                     // Update weights and biases
-                    if (optimizer == "sgd") {
-                        layers[j]->setWeights(layers[j]->getWeights() - learningRate * dWeights);
-                        layers[j]->setBiases(layers[j]->getBiases() - learningRate * dBiases);
-                    } else {
-                        throw std::invalid_argument("unknown optimizer");
-                    }
+                    Matrix weights = layers[j]->getWeights();
+                    Matrix biases = layers[j]->getBiases();
+                    optimizer->update(weights, biases, dWeights, dBiases);
+                    layers[j]->setWeights(weights);
+                    layers[j]->setBiases(biases);
                 }
             }
 

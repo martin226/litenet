@@ -1,6 +1,8 @@
 #include "model.h"
 #include "matrix.h"
 #include "layers.h"
+#include "optimizers.h"
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -99,7 +101,7 @@ int main() {
     litenet::Model model;
     model.add(std::make_unique<litenet::layers::Dense>(784, 64, "sigmoid", std::make_unique<litenet::initializers::GlorotUniform>()));
     model.add(std::make_unique<litenet::layers::Dense>(64, 10, "sigmoid", std::make_unique<litenet::initializers::GlorotUniform>()));
-    model.compile("mean_squared_error", "sgd", 1);
+    model.compile("mean_squared_error", std::make_unique<litenet::optimizers::Adam>(0.01));
 
     // Train
     model.fit(inputs, targets, 30, 64, validationInputs, validationTargets);

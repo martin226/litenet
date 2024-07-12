@@ -288,6 +288,14 @@ namespace litenet {
         return result;
     }
 
+    Matrix Matrix::sqrt() const {
+        Matrix result(rows, cols);
+        for (size_t i = 0; i < rows * cols; i++) {
+            result.data[i] = std::sqrt(data[i]);
+        }
+        return result;
+    }
+
     Matrix Matrix::abs() const {
         Matrix result(rows, cols);
         for (size_t i = 0; i < rows * cols; i++) {
