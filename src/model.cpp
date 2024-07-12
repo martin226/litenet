@@ -108,11 +108,7 @@ namespace litenet {
                     dOutput = dInput;
 
                     // Update weights and biases
-                    Matrix weights = layers[j]->getWeights();
-                    Matrix biases = layers[j]->getBiases();
-                    optimizer->update(weights, biases, dWeights, dBiases);
-                    layers[j]->setWeights(weights);
-                    layers[j]->setBiases(biases);
+                    optimizer->update(*layers[j], dWeights, dBiases);
                 }
             }
 

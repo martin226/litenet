@@ -21,6 +21,8 @@ namespace litenet::layers {
             Matrix getBiases() const;
             void setWeights(const Matrix &weights);
             void setBiases(const Matrix &biases);
+            void updateWeights(const Matrix &dWeights);
+            void updateBiases(const Matrix &dBiases);
         protected:
             Matrix weights;
             Matrix biases;

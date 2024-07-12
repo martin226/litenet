@@ -22,6 +22,14 @@ namespace litenet::layers {
         this->biases = biases;
     }
 
+    void Layer::updateWeights(const Matrix &dWeights) {
+        weights -= dWeights;
+    }
+
+    void Layer::updateBiases(const Matrix &dBiases) {
+        biases -= dBiases;
+    }
+
     Dense::Dense(int inFeatures, int outFeatures, const std::string &activation, std::unique_ptr<initializers::Initializer> kernel_initializer, std::unique_ptr<initializers::Initializer> bias_initializer) {
         this->inFeatures = inFeatures;
         this->outFeatures = outFeatures;
