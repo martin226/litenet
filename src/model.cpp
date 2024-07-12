@@ -20,7 +20,7 @@ namespace litenet {
         this->learningRate = learningRate;
     }
 
-    void Model::fit(const Matrix &inputs, const Matrix &targets, int epochs, int batchSize) {
+    void Model::fit(const Matrix &inputs, const Matrix &targets, int epochs, int batchSize, const Matrix &validationInputs, const Matrix &validationTargets) {
         // Ensure parameters are valid
         if (layers.empty()) {
             throw std::runtime_error("Model is empty");
@@ -28,47 +28,85 @@ namespace litenet {
         if (inputs.getRows() != targets.getRows()) {
             throw std::invalid_argument("inputs and targets must have the same number of samples");
         }
-        if (inputs.getRows() % batchSize != 0) {
-            throw std::invalid_argument("batch size must be a divisor of the number of samples");
-        }
 
         // Build the model
         for (const auto &layer : layers) {
             layer->build();
         }
 
+        int numSamples = inputs.getRows();
+        int numBatches = numSamples / batchSize;
+        if (numSamples % batchSize != 0) {
+            numBatches++;
+        }
+
         // Train the model
         for (int epoch = 0; epoch < epochs; epoch++) {
-                // TODO: implement batching
-                // TODO: implemen shuffling
+            // Shuffle data
+            std::vector<int> indices(numSamples);
+            std::iota(indices.begin(), indices.end(), 0); // Fill indices with 0, 1, ..., numSamples-1
+            std::shuffle(indices.begin(), indices.end(), std::default_random_engine());
 
-                Matrix batchInputs = inputs;
-                Matrix batchTargets = targets;
+            // Create shuffled inputs and targets
+            Matrix shuffledInputs(inputs.getRows(), inputs.getCols());
+            Matrix shuffledTargets(targets.getRows(), targets.getCols());
+            for (int i = 0; i < numSamples; i++) {
+                for (int j = 0; j < inputs.getCols(); j++) {
+                    shuffledInputs(i, j) = inputs(indices[i], j);
+                }
+                for (int j = 0; j < targets.getCols(); j++) {
+                    shuffledTargets(i, j) = targets(indices[i], j);
+                }
+            }
 
-                for (const auto &layer : layers) {
-                    batchInputs = layer->forward(batchInputs);
+            for (int batchIndex = 0; batchIndex < numBatches; batchIndex++) {
+                int startIdx = batchIndex * batchSize;
+                int endIdx = startIdx + batchSize;
+                if (endIdx > numSamples) { // Last batch
+                    endIdx = numSamples;
                 }
 
+                // Create batch inputs and targets
+                Matrix batchInputs(batchSize, inputs.getCols());
+                Matrix batchTargets(batchSize, targets.getCols());
+                for (int i = startIdx; i < endIdx; i++) {
+                    for (int j = 0; j < inputs.getCols(); j++) {
+                        batchInputs(i - startIdx, j) = shuffledInputs(i, j);
+                    }
+                    for (int j = 0; j < targets.getCols(); j++) {
+                        batchTargets(i - startIdx, j) = shuffledTargets(i, j);
+                    }
+                }
+
+                // Forward pass
+                Matrix predictions = batchInputs;
+                for (const auto &layer : layers) {
+                    predictions = layer->forward(predictions);
+                }
+
+                // Compute loss and its derivative
                 Matrix dOutput;
                 if (loss == "mean_squared_error") {
-                    dOutput = litenet::loss::meanSquaredErrorPrime(batchInputs, batchTargets);
+                    dOutput = litenet::loss::meanSquaredErrorPrime(predictions, batchTargets);
                 } else if (loss == "mean_absolute_error") {
-                    dOutput = litenet::loss::meanAbsoluteErrorPrime(batchInputs, batchTargets);
+                    dOutput = litenet::loss::meanAbsoluteErrorPrime(predictions, batchTargets);
                 } else if (loss == "binary_crossentropy") {
-                    dOutput = litenet::loss::binaryCrossentropyPrime(batchInputs, batchTargets);
+                    dOutput = litenet::loss::binaryCrossentropyPrime(predictions, batchTargets);
                 } else if (loss == "categorical_crossentropy") {
-                    dOutput = litenet::loss::categoricalCrossentropyPrime(batchInputs, batchTargets);
+                    dOutput = litenet::loss::categoricalCrossentropyPrime(predictions, batchTargets);
                 } else {
                     throw std::invalid_argument("unknown loss function");
                 }
 
+                // Backward pass and weight updates
                 for (int j = layers.size() - 1; j >= 0; j--) {
                     std::tuple<Matrix, Matrix, Matrix> gradients = layers[j]->backward(dOutput); // dInput, dWeights, dBiases
-                    dOutput = std::get<0>(gradients);
+                    Matrix dInput = std::get<0>(gradients);
                     Matrix dWeights = std::get<1>(gradients);
                     Matrix dBiases = std::get<2>(gradients);
+                    dOutput = dInput;
 
-                    // TODO: implement optimizers
+                    // Update weights and biases
                     if (optimizer == "sgd") {
                         layers[j]->setWeights(layers[j]->getWeights() - learningRate * dWeights);
                         layers[j]->setBiases(layers[j]->getBiases() - learningRate * dBiases);
@@ -76,23 +114,54 @@ namespace litenet {
                         throw std::invalid_argument("unknown optimizer");
                     }
                 }
+            }
 
-                // Calculate loss
-                double currentLoss;
-                if (loss == "mean_squared_error") {
-                    currentLoss = litenet::loss::meanSquaredError(batchInputs, batchTargets);
-                } else if (loss == "mean_absolute_error") {
-                    currentLoss = litenet::loss::meanAbsoluteError(batchInputs, batchTargets);
-                } else if (loss == "binary_crossentropy") {
-                    currentLoss = litenet::loss::binaryCrossentropy(batchInputs, batchTargets);
-                } else if (loss == "categorical_crossentropy") {
-                    currentLoss = litenet::loss::categoricalCrossentropy(batchInputs, batchTargets);
-                } else {
-                    throw std::invalid_argument("unknown loss function");
-                }
-                
-                // TODO: implement metrics
-                std::cout << "Epoch " << (epoch + 1) << " | Loss: " << currentLoss << std::endl;
+            // Calculate loss over entire dataset for reporting
+            Matrix predictions = inputs;
+            for (const auto &layer : layers) {
+                predictions = layer->forward(predictions);
+            }
+
+            double currentLoss;
+            if (loss == "mean_squared_error") {
+                currentLoss = litenet::loss::meanSquaredError(predictions, targets);
+            } else if (loss == "mean_absolute_error") {
+                currentLoss = litenet::loss::meanAbsoluteError(predictions, targets);
+            } else if (loss == "binary_crossentropy") {
+                currentLoss = litenet::loss::binaryCrossentropy(predictions, targets);
+            } else if (loss == "categorical_crossentropy") {
+                currentLoss = litenet::loss::categoricalCrossentropy(predictions, targets);
+            } else {
+                throw std::invalid_argument("unknown loss function");
+            }
+        
+            if (validationInputs.getRows() == 0) { // No validation set
+                // Print epoch loss
+                std::cout << "Epoch " << (epoch + 1) << " | loss: " << currentLoss << std::endl;
+                continue;
+            }
+
+            // Calculate validation loss
+            Matrix validationPredictions = validationInputs;
+            for (const auto &layer : layers) {
+                validationPredictions = layer->forward(validationPredictions);
+            }
+
+            double validationLoss;
+            if (loss == "mean_squared_error") {
+                validationLoss = litenet::loss::meanSquaredError(validationPredictions, validationTargets);
+            } else if (loss == "mean_absolute_error") {
+                validationLoss = litenet::loss::meanAbsoluteError(validationPredictions, validationTargets);
+            } else if (loss == "binary_crossentropy") {
+                validationLoss = litenet::loss::binaryCrossentropy(validationPredictions, validationTargets);
+            } else if (loss == "categorical_crossentropy") {
+                validationLoss = litenet::loss::categoricalCrossentropy(validationPredictions, validationTargets);
+            } else {
+                throw std::invalid_argument("unknown loss function");
+            }
+
+            // Print epoch loss
+            std::cout << "Epoch " << (epoch + 1) << " | loss: " << currentLoss << " | val_loss: " << validationLoss << std::endl;
         }
     }
 
@@ -105,5 +174,45 @@ namespace litenet {
             predictions = layer->forward(predictions);
         }
         return predictions;
+    }
+
+    std::vector<double> Model::evaluate(const Matrix &inputs, const Matrix &targets) {
+        if (layers.empty()) {
+            throw std::runtime_error("Model is empty");
+        }
+        Matrix predictions = predict(inputs);
+        std::vector<double> results;
+        if (loss == "mean_squared_error") {
+            results.push_back(litenet::loss::meanSquaredError(predictions, targets));
+        } else if (loss == "mean_absolute_error") {
+            results.push_back(litenet::loss::meanAbsoluteError(predictions, targets));
+        } else if (loss == "binary_crossentropy") {
+            results.push_back(litenet::loss::binaryCrossentropy(predictions, targets));
+        } else if (loss == "categorical_crossentropy") {
+            results.push_back(litenet::loss::categoricalCrossentropy(predictions, targets));
+        } else {
+            throw std::invalid_argument("unknown loss function");
+        }
+
+        // Accuracy
+        int correct = 0;
+        for (int i = 0; i < predictions.getRows(); i++) {
+            int targetIndex = -1;
+            int predictionIndex = -1;
+            for (int j = 0; j < predictions.getCols(); j++) {
+                if (targets(i, j) == 1) {
+                    targetIndex = j;
+                }
+                if (predictions(i, j) > predictions(i, predictionIndex)) {
+                    predictionIndex = j;
+                }
+            }
+            if (targetIndex == predictionIndex) {
+                correct++;
+            }
+        }
+        results.push_back(static_cast<double>(correct) / predictions.getRows());
+
+        return results;
     }
 }
