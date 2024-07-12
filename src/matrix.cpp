@@ -342,6 +342,86 @@ namespace litenet {
         }
     }
 
+    double Matrix::max() const {
+        double m = data[0];
+        for (size_t i = 1; i < rows * cols; i++) {
+            if (data[i] > m) {
+                m = data[i];
+            }
+        }
+        return m;
+    }
+
+    Matrix Matrix::max(int axis) const {
+        if (axis == 0) { // Max along columns
+            Matrix result(1, cols);
+            for (size_t j = 0; j < cols; j++) {
+                double m = data[j];
+                for (size_t i = 1; i < rows; i++) {
+                    if (data[i * cols + j] > m) {
+                        m = data[i * cols + j];
+                    }
+                }
+                result(0, j) = m;
+            }
+            return result;
+        } else if (axis == 1) { // Max along rows
+            Matrix result(rows, 1);
+            for (size_t i = 0; i < rows; i++) {
+                double m = data[i * cols];
+                for (size_t j = 1; j < cols; j++) {
+                    if (data[i * cols + j] > m) {
+                        m = data[i * cols + j];
+                    }
+                }
+                result(i, 0) = m;
+            }
+            return result;
+        } else {
+            throw std::invalid_argument("Invalid axis for max");
+        }
+    }
+
+    double Matrix::min() const {
+        double m = data[0];
+        for (size_t i = 1; i < rows * cols; i++) {
+            if (data[i] < m) {
+                m = data[i];
+            }
+        }
+        return m;
+    }
+
+    Matrix Matrix::min(int axis) const {
+        if (axis == 0) { // Min along columns
+            Matrix result(1, cols);
+            for (size_t j = 0; j < cols; j++) {
+                double m = data[j];
+                for (size_t i = 1; i < rows; i++) {
+                    if (data[i * cols + j] < m) {
+                        m = data[i * cols + j];
+                    }
+                }
+                result(0, j) = m;
+            }
+            return result;
+        } else if (axis == 1) { // Min along rows
+            Matrix result(rows, 1);
+            for (size_t i = 0; i < rows; i++) {
+                double m = data[i * cols];
+                for (size_t j = 1; j < cols; j++) {
+                    if (data[i * cols + j] < m) {
+                        m = data[i * cols + j];
+                    }
+                }
+                result(i, 0) = m;
+            }
+            return result;
+        } else {
+            throw std::invalid_argument("Invalid axis for min");
+        }
+    }
+
     std::vector<double> Matrix::Matrix::flatten() const {
         return data;
     }

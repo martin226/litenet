@@ -48,6 +48,10 @@ namespace litenet {
             Matrix log(double base = 2) const;
             double sum() const;
             Matrix sum(int axis) const;
+            double max() const;
+            Matrix max(int axis) const;
+            double min() const;
+            Matrix min(int axis) const;
             std::vector<double> flatten() const;
             static Matrix reshape(const std::vector<double> &v, int rows, int cols);
             void fill(double value);
