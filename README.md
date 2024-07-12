@@ -33,16 +33,17 @@ std::cout << "Loss: " << results[0] << std::endl;
 std::cout << "Accuracy: " << results[1] << std::endl;
 ```
 
-Results: (on MNIST dataset, 3000 training samples, 100 validation samples)
+Results: (on MNIST dataset, 5000 training samples, 100 validation samples)
 
 ```
-Epoch 1 | loss: 0.621206 | val_loss: 0.669063
-Epoch 2 | loss: 0.393079 | val_loss: 0.45329
+Epoch 1 | loss: 0.46668 | val_loss: 0.459096
+Epoch 2 | loss: 0.290538 | val_loss: 0.304305
+Epoch 3 | loss: 0.228624 | val_loss: 0.245367
 ...
-Epoch 30 | loss: 0.0770367 | val_loss: 0.195699
+Epoch 30 | loss: 0.0631792 | val_loss: 0.107987
 
-Loss: 0.195699
-Accuracy: 0.9
+Loss: 0.107987
+Accuracy: 0.92
 ```
 
 ## Features

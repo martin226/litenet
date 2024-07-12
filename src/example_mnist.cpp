@@ -69,12 +69,12 @@ int main() {
     litenet::Matrix _targets = mnistLabelsToMatrix("data/train-labels.idx1-ubyte");
 
     // Training set
-    litenet::Matrix inputs = _inputs.subsetRows(0, 2999);
-    litenet::Matrix targets = _targets.subsetRows(0, 2999);
+    litenet::Matrix inputs = _inputs.subsetRows(0, 4999);
+    litenet::Matrix targets = _targets.subsetRows(0, 4999);
 
     // Validation set
-    litenet::Matrix validationInputs = _inputs.subsetRows(3000, 3099);
-    litenet::Matrix validationTargets = _targets.subsetRows(3000, 3099);
+    litenet::Matrix validationInputs = _inputs.subsetRows(5000, 5099);
+    litenet::Matrix validationTargets = _targets.subsetRows(5000, 5099);
 
     std::cout << "Training Inputs shape: " << inputs.getRows() << "x" << inputs.getCols() << std::endl;
     std::cout << "Training Targets shape: " << targets.getRows() << "x" << targets.getCols() << std::endl;
