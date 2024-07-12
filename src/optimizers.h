@@ -32,6 +32,15 @@ namespace litenet::optimizers {
             std::vector<Matrix> vBiases;
             int t;
     };
+    class AdaGrad : public Optimizer {
+        public:
+            AdaGrad(double learningRate = 0.01, double epsilon = 1e-8);
+            void update(Matrix &weights, Matrix &biases, const Matrix &dWeights, const Matrix &dBiases) override;
+        private:
+            double epsilon;
+            Matrix vWeights;
+            Matrix vBiases;
+    };
 }
 
 #endif

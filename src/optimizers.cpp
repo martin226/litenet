@@ -40,4 +40,18 @@ namespace litenet::optimizers {
         weights -= mWeightsCorrected / (vWeightsCorrected.sqrt() + epsilon) * learningRate;
         biases -= mBiasesCorrected / (vBiasesCorrected.sqrt() + epsilon) * learningRate;
     }
+
+    AdaGrad::AdaGrad(double learningRate, double epsilon) : Optimizer(learningRate), epsilon(epsilon), vWeights(0, 0), vBiases(0, 0) {}
+
+    void AdaGrad::update(Matrix &weights, Matrix &biases, const Matrix &dWeights, const Matrix &dBiases) {
+        if (vWeights.getRows() != weights.getRows() || vWeights.getCols() != weights.getCols()) {
+            vWeights = Matrix(weights.getRows(), weights.getCols());
+            vBiases = Matrix(biases.getRows(), biases.getCols());
+        }
+        vWeights += dWeights.pow(2);
+        vBiases += dBiases.pow(2);
+
+        weights -= dWeights / (vWeights.sqrt() + epsilon) * learningRate;
+        biases -= dBiases / (vBiases.sqrt() + epsilon) * learningRate;
+    }
 }
