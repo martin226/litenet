@@ -33,6 +33,19 @@ namespace litenet::optimizers {
             std::unordered_map<std::string, Matrix> v;
             int t;
     };
+    class AdamW : public Optimizer {
+        public:
+            AdamW(double learningRate = 0.001, double weightDecay = 0.01, double beta1 = 0.9, double beta2 = 0.999, double epsilon = 1e-8);
+            void update(layers::Layer &layer) override;
+        private:
+            double beta1;
+            double beta2;
+            double epsilon;
+            double weightDecay;
+            std::unordered_map<std::string, Matrix> m;
+            std::unordered_map<std::string, Matrix> v;
+            int t;
+    };
     class AdaGrad : public Optimizer {
         public:
             AdaGrad(double learningRate = 0.01, double epsilon = 1e-8);

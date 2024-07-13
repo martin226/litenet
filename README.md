@@ -68,6 +68,7 @@ Accuracy: 0.94
 - [x] Optimizers
   - [x] Stochastic Gradient Descent (mini-batch)
   - [x] Adam
+  - [x] AdamW
   - [x] RMSprop
   - [x] Adagrad
 - [ ] Metrics
