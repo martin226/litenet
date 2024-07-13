@@ -6,30 +6,6 @@
 #include <stdexcept>
 
 namespace litenet::layers {
-    Matrix Layer::getWeights() const {
-        return weights;
-    }
-
-    Matrix Layer::getBiases() const {
-        return biases;
-    }
-
-    void Layer::setWeights(const Matrix &weights) {
-        this->weights = weights;
-    }
-
-    void Layer::setBiases(const Matrix &biases) {
-        this->biases = biases;
-    }
-
-    void Layer::updateWeights(const Matrix &dWeights) {
-        weights -= dWeights;
-    }
-
-    void Layer::updateBiases(const Matrix &dBiases) {
-        biases -= dBiases;
-    }
-
     Dense::Dense(int inFeatures, int outFeatures, const std::string &activation, std::unique_ptr<initializers::Initializer> kernel_initializer, std::unique_ptr<initializers::Initializer> bias_initializer) {
         this->inFeatures = inFeatures;
         this->outFeatures = outFeatures;
@@ -42,8 +18,8 @@ namespace litenet::layers {
         // for now, inputs is a matrix of shape (samples, features)
         // weights is a matrix of shape (features, units)
         // biases is a matrix of shape (units,)
-        weights = kernel_initializer->initialize(inFeatures, outFeatures);
-        biases = bias_initializer->initialize(outFeatures, 1);
+        this->parameters["weights"] = kernel_initializer->initialize(inFeatures, outFeatures);
+        this->parameters["biases"] = bias_initializer->initialize(outFeatures, 1);
     }
 
     Matrix Dense::forward(const Matrix &inputs) {
@@ -55,25 +31,25 @@ namespace litenet::layers {
         // 
         // z = inputs * weights + biases
         this->inputs = inputs;
-        Matrix z = inputs * weights;
+        Matrix z = inputs * this->parameters["weights"];
 
         for (int i = 0; i < z.getRows(); i++) {
             for (int j = 0; j < z.getCols(); j++) {
-                z(i, j) += biases(j, 0);
+                z(i, j) += this->parameters["biases"](j, 0);
             }
         }
 
         return applyActivation(z);
     }
 
-    std::tuple<Matrix, Matrix, Matrix> Dense::backward(const Matrix &dOutput) {
+    Matrix Dense::backward(const Matrix &dOutput) {
         // Compute pre-activation
-        Matrix z = inputs * weights;
+        Matrix z = inputs * this->parameters["weights"];
 
         // Add biases
         for (int i = 0; i < z.getRows(); i++) {
             for (int j = 0; j < z.getCols(); j++) {
-                z(i, j) += biases(j, 0);
+                z(i, j) += this->parameters["biases"](j, 0);
             }
         }
 
@@ -84,14 +60,13 @@ namespace litenet::layers {
         Matrix delta = dOutput.hadamard(dActivation);
 
         // Compute gradients with respect to the weights and biases
-        Matrix dWeights = inputs.transpose() * delta;
-        Matrix dBiases = delta.sum(0).transpose(); // column-wise sum and then transpose to match the shape of biases
+        this->gradients["weights"] = inputs.transpose() * delta;
+        this->gradients["biases"] = delta.sum(0).transpose(); // column-wise sum and then transpose to match the shape of biases
 
         // Compute gradient with respect to the input
-        Matrix dInputs = delta * weights.transpose();
+        Matrix dInputs = delta * this->parameters["weights"].transpose();
 
-        // Return dInputs, dWeights, and dBiases
-        return std::make_tuple(dInputs, dWeights, dBiases);
+        return dInputs;
     }
 
     Matrix Dense::applyActivation(const Matrix &m) {

@@ -101,14 +101,10 @@ namespace litenet {
 
                 // Backward pass and weight updates
                 for (int j = layers.size() - 1; j >= 0; j--) {
-                    std::tuple<Matrix, Matrix, Matrix> gradients = layers[j]->backward(dOutput); // dInput, dWeights, dBiases
-                    Matrix dInput = std::get<0>(gradients);
-                    Matrix dWeights = std::get<1>(gradients);
-                    Matrix dBiases = std::get<2>(gradients);
-                    dOutput = dInput;
+                    dOutput = layers[j]->backward(dOutput);
 
                     // Update weights and biases
-                    optimizer->update(*layers[j], dWeights, dBiases);
+                    optimizer->update(*layers[j]);
                 }
             }
 
