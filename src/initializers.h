@@ -10,6 +10,7 @@ namespace litenet::initializers {
     class Initializer {
         public:
             Initializer();
+            virtual ~Initializer() {}
             virtual Matrix initialize(int rows, int cols) const = 0;
     };
     class Zeros : public Initializer {
@@ -25,6 +26,7 @@ namespace litenet::initializers {
     class RandomInitializer : public Initializer {
         public:
             RandomInitializer();
+            virtual ~RandomInitializer() {}
             virtual Matrix initialize(int rows, int cols) const = 0;
         protected:
             mutable std::random_device rd;
