@@ -70,73 +70,48 @@ int main() {
     litenet::Matrix _inputs = mnistImagesToMatrix("data/train-images.idx3-ubyte");
     litenet::Matrix _targets = mnistLabelsToMatrix("data/train-labels.idx1-ubyte");
 
-    // Training set
-    litenet::Matrix inputs = _inputs.subsetRows(0, 4999);
-    litenet::Matrix targets = _targets.subsetRows(0, 4999);
+    // Training set (50000 samples)
+    litenet::Matrix trainingInputs = _inputs.subsetRows(0, 49999);
+    litenet::Matrix trainingTargets = _targets.subsetRows(0, 49999);
 
-    // Validation set
-    litenet::Matrix validationInputs = _inputs.subsetRows(5000, 5099);
-    litenet::Matrix validationTargets = _targets.subsetRows(5000, 5099);
+    // Validation set (1000 samples)
+    litenet::Matrix validationInputs = _inputs.subsetRows(50000, 59999);
+    litenet::Matrix validationTargets = _targets.subsetRows(50000, 59999);
 
-    std::cout << "Training Inputs shape: " << inputs.getRows() << "x" << inputs.getCols() << std::endl;
-    std::cout << "Training Targets shape: " << targets.getRows() << "x" << targets.getCols() << std::endl;
+    // Testing set (10000 samples)
+    litenet::Matrix testingInputs = mnistImagesToMatrix("data/t10k-images.idx3-ubyte");
+    litenet::Matrix testingTargets = mnistLabelsToMatrix("data/t10k-labels.idx1-ubyte");
+
+    std::cout << "Training Inputs shape: " << trainingInputs.getRows() << "x" << trainingInputs.getCols() << std::endl;
+    std::cout << "Training Targets shape: " << trainingTargets.getRows() << "x" << trainingTargets.getCols() << std::endl;
 
     std::cout << "Validation Inputs shape: " << validationInputs.getRows() << "x" << validationInputs.getCols() << std::endl;
     std::cout << "Validation Targets shape: " << validationTargets.getRows() << "x" << validationTargets.getCols() << std::endl;
 
-    // print images and labels for the first sample to check if the data is loaded correctly
-    for (int j = 0; j < 28 * 28; j++) {
-        std::cout << (inputs(0, j) > 0.5 ? "#" : " ");
-        if (j % 28 == 27) {
-            std::cout << std::endl;
-        }
-    }
-    for (int j = 0; j < 10; j++) {
-        if (targets(0, j) == 1) {
-            std::cout << j << std::endl;
-        }
-    }
+    std::cout << "Testing Inputs shape: " << testingInputs.getRows() << "x" << testingInputs.getCols() << std::endl;
+    std::cout << "Testing Targets shape: " << testingTargets.getRows() << "x" << testingTargets.getCols() << std::endl;
 
     // Build
+    const double learningRate = 0.0001;
     litenet::Model model;
-    model.add(std::make_unique<litenet::layers::Dense>(784, 64, "sigmoid", std::make_unique<litenet::initializers::GlorotUniform>()));
-    model.add(std::make_unique<litenet::layers::Dense>(64, 10, "sigmoid", std::make_unique<litenet::initializers::GlorotUniform>()));
-    model.compile("mean_squared_error", std::make_unique<litenet::optimizers::Adam>(0.01));
+    model.add(std::make_unique<litenet::layers::Dense>(784, 128, "relu", std::make_unique<litenet::initializers::HeUniform>()));    
+    model.add(std::make_unique<litenet::layers::Dense>(128, 64, "relu", std::make_unique<litenet::initializers::HeUniform>()));    
+    model.add(std::make_unique<litenet::layers::Dense>(64, 32, "relu", std::make_unique<litenet::initializers::HeUniform>()));    
+    model.add(std::make_unique<litenet::layers::Dense>(32, 16, "relu", std::make_unique<litenet::initializers::HeUniform>()));    
+    model.add(std::make_unique<litenet::layers::Dense>(16, 10, "softmax", std::make_unique<litenet::initializers::GlorotUniform>()));
+    model.compile("categorical_crossentropy", std::make_unique<litenet::optimizers::Adam>(learningRate));
 
     // Train
-    model.fit(inputs, targets, 30, 64, validationInputs, validationTargets);
+    const int epochs = 10;
+    const int batchSize = 128;
+    model.fit(trainingInputs, trainingTargets, epochs, batchSize, validationInputs, validationTargets);
 
     // Predict
-    litenet::Matrix predictions = model.predict(validationInputs);
-
-    // for (int i = 0; i < inputs.getRows(); i++) {
-    //     for (int j = 0; j < 28 * 28; j++) {
-    //         std::cout << (inputs(i, j) > 0.5 ? "#" : " ");
-    //         if (j % 28 == 27) {
-    //             std::cout << std::endl;
-    //         }
-    //     }
-    //     int label = 0;
-    //     for (int j = 0; j < 10; j++) {
-    //         if (targets(i, j) == 1) {
-    //             label = j;
-    //         }
-    //     }
-    //     std::cout << "Label: " << label << std::endl;
-    //     int prediction = 0;
-    //     std::cout << "Predictions: ";
-    //     for (int j = 0; j < 10; j++) {
-    //         std::cout << predictions(i, j) << " ";
-    //         if (predictions(i, j) > predictions(i, prediction)) {
-    //             prediction = j;
-    //         }
-    //     }
-    //     std::cout << std::endl;
-    //     std::cout << "Prediction: " << prediction << std::endl;
-    // }
+    litenet::Matrix predictions = model.predict(testingInputs);
+    // do something with predictions
 
     // Evaluate
-    std::vector<double> results = model.evaluate(validationInputs, validationTargets);
+    std::vector<double> results = model.evaluate(testingInputs, testingTargets);
     std::cout << "Loss: " << results[0] << std::endl;
     std::cout << "Accuracy: " << results[1] << std::endl;
     return 0;

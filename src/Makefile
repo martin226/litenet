@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-I.
-DEPS = activations.h layers.h loss.h matrix.h model.h initializers.h
-OBJ = activations.o layers.o loss.o matrix.o model.o initializers.o example_mnist.o
+DEPS = activations.h layers.h loss.h matrix.h model.h initializers.h optimizers.h
+OBJ = activations.o layers.o loss.o matrix.o model.o initializers.o optimizers.o example_mnist.o
 
 %.o: %.c $(DEPS)
 	$(CC) -c -o $@ $< $(CFLAGS)

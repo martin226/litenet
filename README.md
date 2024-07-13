@@ -4,31 +4,52 @@
 
 ⚠ **This project is solely for educational purposes. It is not intended to be used in production.**
 
+![LiteNet Model Training](docs/training.gif)
+
 ## Motivation
 
 > Why make a neural network framework? Why in C++? Why no dependencies?
 
-I wanted to learn more about neural networks and how they work under the hood. I also wanted to learn more about C++ and how to write efficient code. I decided to write a neural network framework in C++ with no dependencies to learn more about both of these topics.
+1. _Why make a neural network framework?_ I wanted to learn more about neural networks and how they work under the hood (backpropagation, optimization algorithms, etc.).
+2. _Why in C++?_ I wanted to learn more about C++ and how to write efficient code. C++ is a powerful language that allows for low-level control and high performance.
+3. _Why no dependencies?_ I wanted to challenge myself to implement everything from scratch. This includes linear algebra operations (matrix multiplication, element-wise operations, etc.), activation functions, loss functions, optimizers, etc.
 
 ## Example Usage (handwritten digit recognition)
 
 For the full example, see [src/example_mnist.cpp](src/example_mnist.cpp).
 
+Model architecture:
+
+- Input layer (784 neurons)
+- Dense layer (128 neurons, ReLU activation)
+- Dense layer (64 neurons, ReLU activation)
+- Dense layer (32 neurons, ReLU activation)
+- Dense layer (16 neurons, ReLU activation)
+- Output layer (10 neurons, Softmax activation)
+- Loss function: Categorical Cross Entropy
+- Optimizer: Adam
+
 ```cpp
 // Build
+const double learningRate = 0.0001;
 litenet::Model model;
-model.add(std::make_unique<litenet::layers::Dense>(784, 64, "sigmoid", std::make_unique<litenet::initializers::GlorotUniform>()));
-model.add(std::make_unique<litenet::layers::Dense>(64, 10, "sigmoid", std::make_unique<litenet::initializers::GlorotUniform>()));
-model.compile("mean_squared_error", std::make_unique<litenet::optimizers::Adam>(0.01));
+model.add(std::make_unique<litenet::layers::Dense>(784, 128, "relu", std::make_unique<litenet::initializers::HeUniform>()));
+model.add(std::make_unique<litenet::layers::Dense>(128, 64, "relu", std::make_unique<litenet::initializers::HeUniform>()));
+model.add(std::make_unique<litenet::layers::Dense>(64, 32, "relu", std::make_unique<litenet::initializers::HeUniform>()));
+model.add(std::make_unique<litenet::layers::Dense>(32, 16, "relu", std::make_unique<litenet::initializers::HeUniform>()));
+model.add(std::make_unique<litenet::layers::Dense>(16, 10, "softmax", std::make_unique<litenet::initializers::GlorotUniform>()));
+model.compile("categorical_crossentropy", std::make_unique<litenet::optimizers::Adam>(learningRate));
 
 // Train
-model.fit(inputs, targets, 30, 64, validationInputs, validationTargets);
+const int epochs = 10;
+const int batchSize = 128;
+model.fit(trainingInputs, trainingTargets, epochs, batchSize, validationInputs, validationTargets);
 
 // Predict
 litenet::Matrix predictions = model.predict(inputs);
 
 // Evaluate
-std::vector<double> results = model.evaluate(validationInputs, validationTargets);
+std::vector<double> results = model.evaluate(testingInputs, testingTargets);
 std::cout << "Loss: " << results[0] << std::endl;
 std::cout << "Accuracy: " << results[1] << std::endl;
 ```
@@ -36,14 +57,14 @@ std::cout << "Accuracy: " << results[1] << std::endl;
 Results: (on MNIST dataset, 5000 training samples, 100 validation samples)
 
 ```
-Epoch 1 | loss: 0.256219 | val_loss: 0.278005
-Epoch 2 | loss: 0.2069 | val_loss: 0.249769
-Epoch 3 | loss: 0.174791 | val_loss: 0.228139
+Epoch 1/10 | loss: 1.25122 | val_loss: 0.427858
+Epoch 2/10 | loss: 0.367129 | val_loss: 0.29313
+Epoch 3/10 | loss: 0.290466 | val_loss: 0.258899
 ...
-Epoch 30 | loss: 0.0256604 | val_loss: 0.0824118
+Epoch 10/10 | loss: 0.158151 | val_loss: 0.157823
 
-Loss: 0.0824118
-Accuracy: 0.94
+Loss: 0.164677
+Accuracy: 0.9201
 ```
 
 ## Features
