@@ -60,6 +60,8 @@ namespace litenet {
                 }
             }
 
+            double epochLoss = 0.0;
+
             for (int batchIndex = 0; batchIndex < numBatches; batchIndex++) {
                 int startIdx = batchIndex * batchSize;
                 int endIdx = startIdx + batchSize;
@@ -106,30 +108,29 @@ namespace litenet {
                     // Update weights and biases
                     optimizer->update(*layers[j]);
                 }
+
+                // Calculate loss for reporting
+                double currentLoss;
+                if (loss == "mean_squared_error") {
+                    currentLoss = litenet::loss::meanSquaredError(predictions, batchTargets);
+                } else if (loss == "mean_absolute_error") {
+                    currentLoss = litenet::loss::meanAbsoluteError(predictions, batchTargets);
+                } else if (loss == "binary_crossentropy") {
+                    currentLoss = litenet::loss::binaryCrossentropy(predictions, batchTargets);
+                } else if (loss == "categorical_crossentropy") {
+                    currentLoss = litenet::loss::categoricalCrossentropy(predictions, batchTargets);
+                } else {
+                    throw std::invalid_argument("unknown loss function");
+                }
+                epochLoss += currentLoss;
+                std::cout << "Batch " << (batchIndex + 1) << "/" << numBatches << " | loss: " << epochLoss / (batchIndex + 1) << "\r";
             }
 
             // Calculate loss over entire dataset for reporting
-            Matrix predictions = inputs;
-            for (const auto &layer : layers) {
-                predictions = layer->forward(predictions);
-            }
-
-            double currentLoss;
-            if (loss == "mean_squared_error") {
-                currentLoss = litenet::loss::meanSquaredError(predictions, targets);
-            } else if (loss == "mean_absolute_error") {
-                currentLoss = litenet::loss::meanAbsoluteError(predictions, targets);
-            } else if (loss == "binary_crossentropy") {
-                currentLoss = litenet::loss::binaryCrossentropy(predictions, targets);
-            } else if (loss == "categorical_crossentropy") {
-                currentLoss = litenet::loss::categoricalCrossentropy(predictions, targets);
-            } else {
-                throw std::invalid_argument("unknown loss function");
-            }
+            epochLoss /= numBatches;
         
             if (validationInputs.getRows() == 0) { // No validation set
-                // Print epoch loss
-                std::cout << "Epoch " << (epoch + 1) << " | loss: " << currentLoss << std::endl;
+                std::cout << "Epoch " << (epoch + 1) << "/" << epochs << " | loss: " << epochLoss << std::endl;
                 continue;
             }
 
@@ -153,7 +154,7 @@ namespace litenet {
             }
 
             // Print epoch loss
-            std::cout << "Epoch " << (epoch + 1) << " | loss: " << currentLoss << " | val_loss: " << validationLoss << std::endl;
+            std::cout << "Epoch " << (epoch + 1) << "/" << epochs << " | loss: " << epochLoss << " | val_loss: " << validationLoss << std::endl;
         }
     }
 
