@@ -54,7 +54,7 @@ std::cout << "Loss: " << results[0] << std::endl;
 std::cout << "Accuracy: " << results[1] << std::endl;
 ```
 
-Results: (on MNIST dataset, 5000 training samples, 100 validation samples)
+Results: (on MNIST dataset: 50,000 training samples, 10,000 validation samples, 10,000 testing samples)
 
 ```
 Epoch 1/10 | loss: 1.25122 | val_loss: 0.427858
