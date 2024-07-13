@@ -63,7 +63,7 @@ namespace litenet::loss {
         return result / predictions.getRows();
     }
 
-    double categoricalCrossentropy(const Matrix &predictions, const Matrix &targets) {
+    double categoricalCrossentropy(const Matrix &predictions, const Matrix &targets) { // predictions is the output of the softmax function
         if (predictions.getRows() != targets.getRows() || predictions.getCols() != targets.getCols()) {
             throw std::invalid_argument("predictions and targets must have the same shape");
         }
@@ -79,19 +79,10 @@ namespace litenet::loss {
         return -crossentropy / predictions.getRows();
     }
 
-    Matrix categoricalCrossentropyPrime(const Matrix &predictions, const Matrix &targets) {
+    Matrix categoricalCrossentropyPrime(const Matrix &predictions, const Matrix &targets) { // predictions is the output of the softmax function
         if (predictions.getRows() != targets.getRows() || predictions.getCols() != targets.getCols()) {
             throw std::invalid_argument("predictions and targets must have the same shape");
         }
-        Matrix result(predictions.getRows(), predictions.getCols());
-        const double epsilon = 1e-7;
-        for (int i = 0; i < predictions.getRows(); i++) {
-            for (int j = 0; j < predictions.getCols(); j++) {
-                double p = predictions(i, j);
-                double t = targets(i, j);
-                result(i, j) = -t / (p + epsilon);
-            }
-        }
-        return result / predictions.getRows();
+        return (predictions - targets) / predictions.getRows();
     }
 }
