@@ -2,7 +2,6 @@
 #include "layers.h"
 
 #include <cmath>
-#include <iostream>
 
 namespace litenet::optimizers {
     Optimizer::Optimizer(double learningRate) : learningRate(learningRate) {}
