@@ -6,7 +6,20 @@
 #include <stdexcept>
 
 namespace litenet::layers {
+    std::string Layer::getName() const {
+        return name;
+    }
+    int Layer::getInFeatures() const {
+        return inFeatures;
+    }
+    int Layer::getOutFeatures() const {
+        return outFeatures;
+    }
+    int Layer::getNumParameters() const {
+        return inFeatures * outFeatures + outFeatures; // change later
+    }
     Dense::Dense(int inFeatures, int outFeatures, const std::string &activation, std::unique_ptr<initializers::Initializer> kernel_initializer, std::unique_ptr<initializers::Initializer> bias_initializer) {
+        this->name = "Dense";
         this->inFeatures = inFeatures;
         this->outFeatures = outFeatures;
         this->activation = activation;
@@ -97,5 +110,29 @@ namespace litenet::layers {
             return activations::softmaxPrime(m);
         }
         return m;
+    }
+
+    Dropout::Dropout(float rate) {
+        this->name = "Dropout";
+        this->rate = rate;
+    }
+
+    void Dropout::build() {
+        // Nothing to do here
+    }
+
+    Matrix Dropout::forward(const Matrix &inputs) {
+        // Generate a mask with the same shape as the inputs
+        mask = randomUniform.initialize(inputs.getRows(), inputs.getCols());
+        for (int i = 0; i < mask.getRows(); i++) {
+            for (int j = 0; j < mask.getCols(); j++) {
+                mask(i, j) = mask(i, j) > rate ? 1 : 0;
+            }
+        }
+        return inputs.hadamard(mask);
+    }
+
+    Matrix Dropout::backward(const Matrix &dOutput) {
+        return dOutput.hadamard(mask);
     }
 }

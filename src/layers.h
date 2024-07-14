@@ -18,8 +18,16 @@ namespace litenet::layers {
             virtual void build() = 0;
             virtual Matrix forward(const Matrix &inputs) = 0;
             virtual Matrix backward(const Matrix &dOutput) = 0;
+            std::string getName() const;
+            int getInFeatures() const;
+            int getOutFeatures() const;
+            int getNumParameters() const;
             std::unordered_map<std::string, Matrix> parameters;
             std::unordered_map<std::string, Matrix> gradients;
+        protected:
+            std::string name;
+            int inFeatures;
+            int outFeatures;
     };
     class Dense : public Layer {
         public:
@@ -30,12 +38,21 @@ namespace litenet::layers {
         private:
             std::unique_ptr<initializers::Initializer> kernel_initializer;
             std::unique_ptr<initializers::Initializer> bias_initializer;
-            int inFeatures;
-            int outFeatures;
             std::string activation;
             Matrix inputs;
             Matrix applyActivation(const Matrix &m);
             Matrix applyActivationPrime(const Matrix &m);
+    };
+    class Dropout : public Layer {
+        public:
+            Dropout(float rate = 0.5);
+            void build() override;
+            Matrix forward(const Matrix &inputs) override;
+            Matrix backward(const Matrix &dOutput) override;
+        private:
+            float rate;
+            Matrix mask;
+            initializers::RandomUniform randomUniform = initializers::RandomUniform(0, 1);
     };
 }
 

@@ -74,7 +74,7 @@ Accuracy: 0.9201
   - [ ] Conv2D
   - [ ] MaxPooling2D
   - [ ] Flatten
-  - [ ] Dropout
+  - [x] Dropout
 - [x] Activation Functions
   - [x] ReLU
   - [x] Leaky ReLU
