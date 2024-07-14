@@ -21,10 +21,10 @@ For the full example, see [src/example_mnist.cpp](src/example_mnist.cpp).
 Model architecture:
 
 - Input layer (784 neurons)
+- Dense layer (256 neurons, ReLU activation)
 - Dense layer (128 neurons, ReLU activation)
 - Dense layer (64 neurons, ReLU activation)
 - Dense layer (32 neurons, ReLU activation)
-- Dense layer (16 neurons, ReLU activation)
 - Output layer (10 neurons, Softmax activation)
 - Loss function: Categorical Cross Entropy
 - Optimizer: Adam
@@ -33,15 +33,15 @@ Model architecture:
 // Build
 const double learningRate = 0.0001;
 litenet::Model model;
-model.add(std::make_unique<litenet::layers::Dense>(784, 128, "relu", std::make_unique<litenet::initializers::HeUniform>()));
+model.add(std::make_unique<litenet::layers::Dense>(784, 256, "relu", std::make_unique<litenet::initializers::HeUniform>()));
+model.add(std::make_unique<litenet::layers::Dense>(256, 128, "relu", std::make_unique<litenet::initializers::HeUniform>()));
 model.add(std::make_unique<litenet::layers::Dense>(128, 64, "relu", std::make_unique<litenet::initializers::HeUniform>()));
 model.add(std::make_unique<litenet::layers::Dense>(64, 32, "relu", std::make_unique<litenet::initializers::HeUniform>()));
-model.add(std::make_unique<litenet::layers::Dense>(32, 16, "relu", std::make_unique<litenet::initializers::HeUniform>()));
-model.add(std::make_unique<litenet::layers::Dense>(16, 10, "softmax", std::make_unique<litenet::initializers::GlorotUniform>()));
+model.add(std::make_unique<litenet::layers::Dense>(32, 10, "softmax", std::make_unique<litenet::initializers::GlorotUniform>()));
 model.compile("categorical_crossentropy", std::make_unique<litenet::optimizers::Adam>(learningRate));
 
 // Train
-const int epochs = 10;
+const int epochs = 8;
 const int batchSize = 128;
 model.fit(trainingInputs, trainingTargets, epochs, batchSize, validationInputs, validationTargets);
 
@@ -57,14 +57,17 @@ std::cout << "Accuracy: " << results[1] << std::endl;
 Results: (on MNIST dataset: 50,000 training samples, 10,000 validation samples, 10,000 testing samples)
 
 ```
-Epoch 1/10 | loss: 1.25122 | val_loss: 0.427858
-Epoch 2/10 | loss: 0.367129 | val_loss: 0.29313
-Epoch 3/10 | loss: 0.290466 | val_loss: 0.258899
-...
-Epoch 10/10 | loss: 0.158151 | val_loss: 0.157823
+Epoch 1/8 | loss: 0.836841 | val_loss: 0.31251
+Epoch 2/8 | loss: 0.269037 | val_loss: 0.19455
+Epoch 3/8 | loss: 0.202645 | val_loss: 0.165277
+Epoch 4/8 | loss: 0.1673 | val_loss: 0.147121
+Epoch 5/8 | loss: 0.14387 | val_loss: 0.133752
+Epoch 6/8 | loss: 0.128119 | val_loss: 0.131927
+Epoch 7/8 | loss: 0.118322 | val_loss: 0.128091
+Epoch 8/8 | loss: 0.111184 | val_loss: 0.128207
 
-Loss: 0.164677
-Accuracy: 0.9201
+Loss: 0.136428
+Accuracy: 0.9364
 ```
 
 ## Features

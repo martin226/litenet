@@ -94,15 +94,15 @@ int main() {
     // Build
     const double learningRate = 0.0001;
     litenet::Model model;
-    model.add(std::make_unique<litenet::layers::Dense>(784, 128, "relu", std::make_unique<litenet::initializers::HeUniform>()));    
+    model.add(std::make_unique<litenet::layers::Dense>(784, 256, "relu", std::make_unique<litenet::initializers::HeUniform>()));    
+    model.add(std::make_unique<litenet::layers::Dense>(256, 128, "relu", std::make_unique<litenet::initializers::HeUniform>()));    
     model.add(std::make_unique<litenet::layers::Dense>(128, 64, "relu", std::make_unique<litenet::initializers::HeUniform>()));    
     model.add(std::make_unique<litenet::layers::Dense>(64, 32, "relu", std::make_unique<litenet::initializers::HeUniform>()));    
-    model.add(std::make_unique<litenet::layers::Dense>(32, 16, "relu", std::make_unique<litenet::initializers::HeUniform>()));    
-    model.add(std::make_unique<litenet::layers::Dense>(16, 10, "softmax", std::make_unique<litenet::initializers::GlorotUniform>()));
+    model.add(std::make_unique<litenet::layers::Dense>(32, 10, "softmax", std::make_unique<litenet::initializers::GlorotUniform>()));
     model.compile("categorical_crossentropy", std::make_unique<litenet::optimizers::Adam>(learningRate));
 
     // Train
-    const int epochs = 10;
+    const int epochs = 8;
     const int batchSize = 128;
     model.fit(trainingInputs, trainingTargets, epochs, batchSize, validationInputs, validationTargets);
 
